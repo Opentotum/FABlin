@@ -1,0 +1,13 @@
+export PYTHONPATH=${ROOT}/test/py:${PYTHONPATH}
+
+# Disable & prompt head installation
+python ${GTRR_ROOT}/test/py/install_module.py 7 Laser
+
+if [ $? == 0 ]; then
+  python start.py
+  RUNNER=python
+  BUFFER=''
+else
+  # Change test pattern to skip the current directory
+  TESTS=*.skip
+fi

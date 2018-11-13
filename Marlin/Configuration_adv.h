@@ -65,10 +65,33 @@
 #define CONTROLLERFAN_SECS 60 //How many seconds, after all motors were disabled, the fan should run
 #define CONTROLLERFAN_SPEED 255  // == full speed
 
+// Define: FAN_KICKSTART_TIME
+//
+// --- Prototype ---
+// #define FAN_KICKSTART_TIME <msecs>
+// -----------------
+//
+// Set fan kickstart time
+//
+// Description:
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
-//#define FAN_KICKSTART_TIME 100
+#define FAN_KICKSTART_TIME 50
+
+// Define: FAN_MIN_PWM
+//
+// --- Prototype ---
+// #define FAN_MIN_PWM {1-255}
+// -----------------
+//
+// Set minimum fan PWM level
+//
+// Description:
+// This defines the minimal speed for the main fan, run in PWM mode
+// to enable uncomment and set minimal PWM speed for reliable running (1-255)
+// if fan speed is [1 - (FAN_MIN_PWM-1)] it is set to FAN_MIN_PWM
+#define FAN_MIN_PWM 60
 
 // Extruder cooling fans
 // Configure fan pin outputs to automatically turn on/off when the associated
@@ -218,6 +241,11 @@
 #define Z_HOME_RETRACT_MM 2
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
+// move away from endstop position to park position that does not trigger the endstop
+#define X_HOME_PARK_OFFSET 2
+#define Y_HOME_PARK_OFFSET 2
+#define Z_HOME_PARK_OFFSET 0
+
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
 #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
@@ -227,6 +255,10 @@
 #define INVERT_Y_STEP_PIN false
 #define INVERT_Z_STEP_PIN false
 #define INVERT_E_STEP_PIN false
+#define INVERT_E0_STEP_PIN INVERT_E_STEP_PIN
+#define INVERT_E1_STEP_PIN INVERT_E_STEP_PIN
+#define INVERT_E2_STEP_PIN INVERT_E_STEP_PIN
+#define INVERT_E3_STEP_PIN true
 
 //default idle for totumduino
 #define DEFAULT_DEACTIVE_TIME 600 //600 =10 minutes and shutting down everything
@@ -494,13 +526,36 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #undef BED_MAXTEMP
 #endif
 
+/**
+ * Auto-report temperatures with M155 S<seconds>
+ */
+#define AUTO_REPORT_TEMPERATURES
+#define AUTO_REPORT_TEMPERATURES_DEFAULT_INTERVAL 5 // secs
+
 #if defined(SMART_COMM)
    #define LINE_FORWARDING_ENCLOSING_CHAR   '"'
    #define LINE_FORWARDING_TERMINATION_CHAR '.'  // This character alone on an input line is used to escape from input echoing to the head
 
-   #define SMART_HEAD_RX_PIN 11
-   #define SMART_HEAD_TX_PIN 57
+   #define SMART_HEAD_RX_PIN RXD4
+   #define SMART_HEAD_TX_PIN TXD4
 #endif
 
+#define ST_ISR_PROFILE_PIN 50
+#define TP_ISR_PROFILE_PIN 51
+#define IDLE_PROFILE_PIN   52
+
+/**
+ * Define: NUMERIC_ERROR_MESSAGES
+ * 
+ * Enable substitution of error messages with numeric codes
+ * 
+ * Description:
+ * 
+ *  For this to work, a file named `message_ids.` must be present in the source directory.
+ * For each MSG_* string defined in the firmware, the file must define a corresponding
+ * numeric code as MSG_*_ID.
+ * 
+ */
+//#define NUMERIC_ERROR_MESSAGES
 
 #endif //__CONFIGURATION_ADV_H

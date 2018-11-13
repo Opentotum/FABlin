@@ -480,28 +480,43 @@ void check_axes_activity()
     disable_e0();
     disable_e1();
     disable_e2();
+    disable_e3();
   }
-#if defined(FAN_PIN) && FAN_PIN > -1
-  #ifdef FAN_KICKSTART_TIME
-    static unsigned long fan_kick_end;
-    if (tail_fan_speed) {
-      if (fan_kick_end == 0) {
-        // Just starting up fan - run at full power.
-        fan_kick_end = millis() + FAN_KICKSTART_TIME;
-        tail_fan_speed = 255;
-      } else if (fan_kick_end > millis())
-        // Fan still spinning up.
-        tail_fan_speed = 255;
-    } else {
-      fan_kick_end = 0;
-    }
-  #endif//FAN_KICKSTART_TIME
-  #ifdef FAN_SOFT_PWM
-  fanSpeedSoftPwm = tail_fan_speed;
-  #else
-  analogWrite(FAN_PIN,tail_fan_speed);
-  #endif//!FAN_SOFT_PWM
-#endif//FAN_PIN > -1
+
+  #if defined(FAN_PIN) && FAN_PIN > -1
+
+    #if FAN_KICKSTART_TIME > 0
+
+      static unsigned long fan_kick_end;
+
+      if (tail_fan_speed) {
+        if (fan_kick_end == 0) {
+          // Just starting up fan - run at full power.
+          fan_kick_end = millis() + FAN_KICKSTART_TIME;
+          tail_fan_speed = 255;
+        } else if (fan_kick_end > millis())
+          // Fan still spinning up.
+          tail_fan_speed = 255;
+      } else {
+        fan_kick_end = 0;
+      }
+
+    #endif // FAN_KICKSTART_TIME > 0
+
+    #ifdef FAN_MIN_PWM
+      #define CALC_FAN_SPEED (tail_fan_speed ? ( FAN_MIN_PWM + (tail_fan_speed * (255 - FAN_MIN_PWM)) / 255 ) : 0)
+    #else
+      #define CALC_FAN_SPEED tail_fan_speed
+    #endif
+
+    #ifdef FAN_SOFT_PWM
+      fanSpeedSoftPwm = CALC_FAN_SPEED;
+    #else
+      analogWrite(FAN_PIN,CALC_FAN_SPEED);
+    #endif
+
+  #endif // FAN_PIN > -1
+
 #ifdef AUTOTEMP
   getHighESpeed();
 #endif
@@ -559,8 +574,8 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     if(degHotend(active_extruder)<extrude_min_temp)
     {
       position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+      SERIAL_ASYNC_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
       RPI_ERROR_ACK_ON();
       ERROR_CODE=ERROR_EXTRUDE_MINTEMP;
     }
@@ -569,8 +584,8 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     if(labs(target[E_AXIS]-position[E_AXIS])>axis_steps_per_unit[E_AXIS]*EXTRUDE_MAXLENGTH)
     {
       position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
+      SERIAL_ASYNC_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
       RPI_ERROR_ACK_ON();
       ERROR_CODE=ERROR_LONG_EXTRUSION;
     }
@@ -677,6 +692,7 @@ block->steps_x = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
     enable_e0();
     enable_e1();
     enable_e2();
+    enable_e3();
   }
 
   if (block->steps_e == 0)

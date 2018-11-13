@@ -1,0 +1,12 @@
+export PYTHONPATH=${ROOT}/test/py:${PYTHONPATH}
+
+# Disable & prompt head installation
+python ${GTRR_ROOT}/test/py/install_module.py 2 FFF
+
+if [ $? == 0 ]; then
+  RUNNER=python
+  BUFFER=''
+else
+  # Change test pattern to skip the current directory
+  TESTS=*.skip
+fi
