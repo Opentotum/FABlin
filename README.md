@@ -14,6 +14,15 @@ I/Os capabilities.
 Compiling
 ---------
 
+### with Docker
+Use the following command to compile inside a Container  
+Replace /path/to/hexfile with a real path on your Machine
+```
+docker build --rm -t totumduinobuilder .
+docker run --rm -v /root/out:/out totumduinobuilder
+```
+
+
 ### with Arduino IDE
 
 To correctly compile the firmware with Arduino you must set the folder
