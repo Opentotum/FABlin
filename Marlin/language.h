@@ -29,7 +29,7 @@
 
 #if MOTHERBOARD == 25
 	#define MACHINE_NAME "FABtotum"
-	#define FIRMWARE_URL "https://github.com/FABtotum/FABlin"
+	#define FIRMWARE_URL "https://github.com/Opentotum/FABlin"
 #elif MOTHERBOARD == 7 || MOTHERBOARD == 71 || MOTHERBOARD == 72
 	#define MACHINE_NAME "Ultimaker"
 	#define FIRMWARE_URL "http://firmware.ultimaker.com"
